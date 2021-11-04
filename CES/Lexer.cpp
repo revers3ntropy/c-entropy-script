@@ -20,7 +20,6 @@ es::LexResult es::Lexer::lex() {
     }
 
     while (can_advance()) {
-
         if (isspace(current_char)) {
             advance();
         } else if (isdigit(current_char)) {
@@ -136,7 +135,6 @@ std::tuple<es::Token*, es::Error*> es::Lexer::make_string() {
 }
 
 std::tuple<es::Token*, es::Error*> es::Lexer::unknownToken() {
-
     if (position->idx < text.length()-2) {
         for (const auto& triple : es::TRIPLE_CHAR_TOKENS) {
             std::string key = triple.first;

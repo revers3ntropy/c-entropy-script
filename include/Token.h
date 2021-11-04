@@ -19,8 +19,8 @@ namespace es {
         Token (Position* start_, Position* end_, tt type_, std::string value_="") :
             start(start_->clone()), end(end_->clone()), type(type_), value(std::move(value_)) {}
 
-        bool matches(tt type, std::string* value) const;
-        inline std::string str() const {
+        [[nodiscard]] bool matches(tt type, const std::string& value) const;
+        [[nodiscard]] inline std::string str() const {
             auto out = "<Token: " + str_tt(type);
             if (!value.empty())
                out += "|" + value;

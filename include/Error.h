@@ -11,8 +11,8 @@ namespace es {
         Position* end;
         std::string name;
         std::string detail;
-    public:
 
+    public:
         Error(Position* start_, Position* end_, std::string  name_, std::string detail_) :
             start(start_->clone()), end(end_->clone()), name(std::move(name_)), detail(std::move(detail_)){};
 

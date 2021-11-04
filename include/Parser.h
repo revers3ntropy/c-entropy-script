@@ -54,6 +54,7 @@ namespace es {
         std::vector<Token> tokens;
         Token* current;
         int tok_idx;
+
     public:
         explicit Parser(std::vector<es::Token> tokens_)
          : tokens(tokens_), tok_idx(-1), current(&tokens_[0]) {
@@ -100,9 +101,8 @@ namespace es {
         }
 
         inline void clear_end_statements (ParseResult* res) {
-            while (current->type == es::tt::END_STATEMENT) {
-                advance();
-            }
+            while (current->type == es::tt::END_STATEMENT)
+                advance(res);
         }
 
         inline void add_end_statement(ParseResult* res) {

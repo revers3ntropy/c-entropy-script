@@ -3,13 +3,13 @@ true;
 undefined;
 
 // Inaccessible in ES
-class Primitive {
-    str(): string {}
-    bool(): bool {}
-    typeOf(): string {}
-    hasProperty(key: string): bool {}
-    __getProperty__(key: any): any {}
-    clone(): any {}
+const Primitive = class {
+    str(): string {};
+    bool(): bool {};
+    typeOf(): string {};
+    hasProperty(key: string): bool {};
+    __getProperty__(key: any): any {};
+    clone(): any {};
 
     // Optional - might be undefined
     __add__(n: any): any;
@@ -24,11 +24,11 @@ class Primitive {
     __or__(n: any): any;
     __bool__(): boolean | Error;
     __setProperty__(key: any, value: any): Error | undefined;
-    __getProperty__(key: any) => any;
+    __getProperty__(key: any): any;
     __call__(parameters: any[], context: any): Error | any;
-}
+};
 
-class type extends Primitive<undefined> {
+const type = class extends Primitive {
     __isPrimitive__: bool;
     __name__: string;
     __extends__: Type | undefined;
@@ -36,49 +36,49 @@ class type extends Primitive<undefined> {
     __init__: Function  undefined;
     __instances__: Object[];
 
-    includesType (t: Type): bool {}
-    equals (t: Type): bool {}
-}
+    includesType (t: Type): bool {};
+    equals (t: Type): bool {};
+};
 
-class number extends Primitive<number> {
+const number = class extends Primitive {
 
-}
+};
 
-class string extends Primitive<string> {
+const string = class extends Primitive {
     len(): number {}
-}
+};
 
-class undefined extends Primitive<undefined> {
+const undefined = class extends Primitive {
 
-}
+};
 
-class error extends Primitive<any> {
+const error = class extends Primitive<any> {
 
-}
+};
 
-class function extends Primitive<any> {
+const function = class extends Primitive<any> {
     name: string;
     arguments_: any[];
     this_: any;
     returnType: Type;
-}
+};
 
-class bool extends Primitive {
+const bool = class extends Primitive {
 
-}
+};
 
 class object extends Primitive {
 
-}
+};
 
 class array extends Primitive {
     len: number;
     add(val: any, idx: number=(len-1))
-}
+};
 
-range (n: number): number[] {}
-log(msg: any): undefined {};
-parseNum(str: any): number | error {};
-import(url: string): undefined {};
-print(msg: any): undefined {};
-input(msg: string, cb: function): string {};
+const range    = func (n: number): number[] {};
+const log      = func (msg: any): undefined {};
+const parseNum = func (str: any): number | error {};
+const import   = func (url: string): undefined {};
+const print    = func (msg: any): undefined {};
+const input    = func (msg: string, cb: function): string {};

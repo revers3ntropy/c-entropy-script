@@ -42,6 +42,6 @@ std::string es::str_tt(es::tt t) {
     return "Unknown";
 };
 
-bool es::Token::matches(es::tt t, std::string* v) const {
-    return t == type && *v == value;
+bool es::Token::matches(es::tt t, const std::string& v) const {
+    return t == type && v == value;
 }

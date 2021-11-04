@@ -1,8 +1,10 @@
 #pragma once
+#include <utility>
 
 #include "RTResult.h"
 #include "Error.h"
 #include "Primitive.h"
+#include "Token.h"
 
 namespace es {
     class Node {
@@ -14,25 +16,100 @@ namespace es {
         RunTimeResult* interpret();
 
     private:
-        virtual RunTimeResult* interpret_() {
-            return nullptr;
-        };
+        // placeholder -- must be overridden in every sub-class
+        virtual RunTimeResult* interpret_() { return nullptr; };
 
     protected:
-        Node (Position* start_, Position* end_, bool is_terminal_):
-            start(start_), end(end_), is_terminal(is_terminal_) {};
+        Node (Position* start, Position* end, bool is_terminal_=false):
+            start(start->clone()), end(end->clone()), is_terminal(is_terminal_) {};
     };
 
-    class N_number: public Node {
-        RunTimeResult* interpret_ () override;
-        N_number (Position* start_, Position* end_, std::string value):
-            Node(start_, end_, true) {}
+    class TerminalNode : public Node {
+        std::string value;
+    public:
+        TerminalNode(Position* start, Position* end, std::string value_="") :
+            Node(start, end, true), value(std::move(value_)) {};
     };
 
-    class N_access_variable: public Node {
+    // TERMINAL NODES
+
+    class N_number: public TerminalNode {
         RunTimeResult* interpret_ () override;
     public:
-        N_access_variable (Position* start_, Position* end_, std::string value):
-            Node(start_, end_, true) {}
+        N_number (Position* start, Position* end, std::string value):
+            TerminalNode(start, end, std::move(value)) {}
+    };
+
+    class N_access_variable: public TerminalNode {
+        RunTimeResult* interpret_ () override;
+    public:
+        N_access_variable (Position* start, Position* end, std::string value):
+            TerminalNode(start, end, std::move(value)) {}
+    };
+
+    class N_undefined: public TerminalNode {
+        RunTimeResult* interpret_ () override;
+    public:
+        N_undefined (Position* start, Position* end):
+        TerminalNode(start, end) {}
+    };
+
+    class N_break: public TerminalNode {
+        RunTimeResult* interpret_ () override;
+    public:
+        N_break (Position* start, Position* end):
+            TerminalNode(start, end) {}
+    };
+
+    class N_continue: public TerminalNode {
+        RunTimeResult* interpret_ () override;
+    public:
+        N_continue (Position* start, Position* end):
+            TerminalNode(start, end) {}
+    };
+
+    // NON_TERMINAL NODES
+
+    class N_return: public Node {
+        RunTimeResult* interpret_ () override;
+        Node* expression;
+    public:
+        N_return (Position* start, Position* end, Node* expression):
+        Node(start, end), expression(expression) {}
+    };
+
+    class N_yield: public Node {
+        RunTimeResult* interpret_ () override;
+        Node* expression;
+    public:
+        N_yield (Position* start, Position* end, Node* expression):
+        Node(start, end), expression(expression) {}
+    };
+
+    class N_bin_op: public Node {
+        RunTimeResult* interpret_ () override;
+        Node* left;
+        Node* right;
+        Token* op_tok;
+    public:
+        N_bin_op (Position* start, Position* end, Node* left, Token* op_tok, Node* right):
+            Node(start, end), left(left), op_tok(op_tok), right(right) {}
+    };
+
+    class N_statements: public Node {
+        RunTimeResult* interpret_ () override;
+        std::vector<Node>* items;
+    public:
+        N_statements (Position* start, Position* end, std::vector<Node>* items_):
+            Node(start, end), items(items_) {}
+    };
+
+    class N_array: public Node {
+        RunTimeResult* interpret_ () override;
+        std::vector<Node>* items;
+        bool should_copy;
+    public:
+        N_array (Position* start, Position* end, std::vector<Node>* items, bool should_copy=false):
+            Node(start, end), items(items), should_copy(should_copy) {}
     };
 }

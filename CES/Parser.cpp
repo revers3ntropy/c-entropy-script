@@ -6,7 +6,10 @@ es::ParseResult* es::Parser::parse() {
     if (tokens.empty() || !current || current->type == es::tt::END_OF_FILE)
         return new ParseResult();
 
-    auto* res = statements(true);
+    es::ParseResult* res = statements(true);
+
+    if (!res)
+        return res->failure(UnexpectedEOF());
 
     if (!res->err && (!current || current->type != es::tt::END_OF_FILE))
         return res->failure(UnexpectedEOF());
@@ -23,12 +26,77 @@ std::tuple<es::UnInterpretedArgument*, es::Error*> es::Parser::parameter(es::Par
     return {nullptr, nullptr};
 }
 
-es::ParseResult *es::Parser::statements(bool use_array) {
-    return nullptr;
+es::ParseResult* es::Parser::statements(bool use_array) {
+    auto* res = new ParseResult();
+    auto* start = current->start->clone();
+
+    std::vector<es::Node> statements = {};
+
+    statements.push_back(*res->register_parse_res(statement()));
+    if (res->err) return res;
+
+    bool more_statements = true;
+
+    while (true) {
+        int new_line_count;
+
+        while (current->type == es::tt::END_STATEMENT) {
+            if(!advance(res)) goto end;
+            new_line_count++;
+        }
+        if (new_line_count == 0)
+            more_statements = false;
+
+        if (!more_statements) break;
+        es::Node* new_statement = res->try_register_parse_res(statement());
+        if (!new_statement) {
+            reverse(res->reverse_count);
+            continue;
+        }
+        statements.push_back(*new_statement);
+    }
+
+end:
+
+    clear_end_statements(res);
+
+    es::Node* node = new N_statements(start, current->end, &statements);
+    if (use_array) node = new N_array(start, current->end, &statements, true);
+
+    // final error check
+    if (res->err) return res;
+    return res->success(node);
 }
 
-es::ParseResult *es::Parser::statement() {
-    return nullptr;
+es::ParseResult* es::Parser::statement() {
+    auto* res = new ParseResult();
+    Position* start = current->start->clone();
+
+    if (current->matches(es::tt::KEYWORD, "return")) {
+        if (!advance(res)) return res->failure(UnexpectedEOF());
+        Node* expression = new N_undefined(start, current->end);
+        if (current->type != es::tt::END_STATEMENT)
+            expression = res->register_parse_res(expr());
+        return res->success(new N_return(start, current->end, expression));
+
+    } else if (current->matches(es::tt::KEYWORD, "yield")) {
+        if (!advance(res)) return res->failure(UnexpectedEOF());
+        Node* expression = new N_undefined(start, current->end);
+        if (current->type != es::tt::END_STATEMENT)
+            expression = res->register_parse_res(expr());
+        return res->success(new N_yield(start, current->end, expression));
+
+    } else if (current->matches(es::tt::KEYWORD, "break")) {
+        if (!advance(res)) return res->failure(UnexpectedEOF());
+        return res->success(new N_break(start, current->end));
+    }  else if (current->matches(es::tt::KEYWORD, "continue")) {
+        if (!advance(res)) return res->failure(UnexpectedEOF());
+        return res->success(new N_continue(start, current->end));
+    }
+
+    auto* expression = res->register_parse_res(expr());
+    if (res->err) return res;
+    return res->success(expression);
 }
 
 es::ParseResult *es::Parser::atom() {
