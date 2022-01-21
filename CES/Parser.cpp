@@ -3,16 +3,19 @@
 #include "../include/Parser.h"
 
 es::ParseResult* es::Parser::parse() {
-    if (tokens.empty() || !current || current->type == es::tt::END_OF_FILE)
+    if (tokens.empty() || !current || current->type == es::tt::END_OF_FILE) {
         return new ParseResult();
+    }
 
     es::ParseResult* res = statements(true);
 
-    if (!res)
-        return res->failure(UnexpectedEOF());
+    if (!res) {
+        return new es::ParseResult {nullptr, UnexpectedEOF()
+        }};
 
-    if (!res->err && (!current || current->type != es::tt::END_OF_FILE))
+    if (!res->err && (!current || current->type != es::tt::END_OF_FILE)) {
         return res->failure(UnexpectedEOF());
+    }
 
     return res;
 }
@@ -33,21 +36,26 @@ es::ParseResult* es::Parser::statements(bool use_array) {
     std::vector<es::Node> statements = {};
 
     statements.push_back(*res->register_parse_res(statement()));
-    if (res->err) return res;
+    if (res->err) {
+        return res;
+    }
 
     bool more_statements = true;
 
     while (true) {
-        int new_line_count;
+        int new_line_count = 0;
 
         while (current->type == es::tt::END_STATEMENT) {
-            if(!advance(res)) goto end;
+            if (!advance(res)) goto end;
             new_line_count++;
         }
-        if (new_line_count == 0)
+        if (new_line_count == 0) {
             more_statements = false;
+        }
 
-        if (!more_statements) break;
+        if (!more_statements) {
+            break;
+        }
         es::Node* new_statement = res->try_register_parse_res(statement());
         if (!new_statement) {
             reverse(res->reverse_count);
@@ -64,7 +72,9 @@ end:
     if (use_array) node = new N_array(start, current->end, &statements, true);
 
     // final error check
-    if (res->err) return res;
+    if (res->err) {
+        return res;
+    }
     return res->success(node);
 }
 
@@ -100,7 +110,18 @@ es::ParseResult* es::Parser::statement() {
 }
 
 es::ParseResult *es::Parser::atom() {
-    return nullptr;
+    auto* res = new ParseResult();
+    auto* tok = current;
+
+    switch (tok->type) {
+        case es::tt::NUMBER:
+            advance(res);
+            return res->success(new es::N_number(tok->start, tok->end, tok->value));
+
+        case es::tt::STRING:
+            advance(res);
+            return res->success(new es::N_string(tok->start, tok->end, tok->value));
+    }
 }
 
 es::ParseResult *es::Parser::atom_identifier(es::ParseResult *res, es::Position *start, es::Token tok) {

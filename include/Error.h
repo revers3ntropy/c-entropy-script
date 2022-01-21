@@ -6,13 +6,12 @@
 
 namespace es {
 
-    class Error {
+    struct Error {
         Position* start;
         Position* end;
         std::string name;
         std::string detail;
 
-    public:
         Error(Position* start_, Position* end_, std::string  name_, std::string detail_) :
             start(start_->clone()), end(end_->clone()), name(std::move(name_)), detail(std::move(detail_)){};
 
@@ -44,7 +43,23 @@ namespace es {
     }
 
     inline Error* SyntaxError(Position* start, Position* end, std::string detail) {
-        return new Error(start, end, "SyntaxError", detail);
+        return new Error(start, end, "SyntaxError",
+                         std::move(detail));
+    }
+
+    inline Error* OperatorError(Position* start, Position* end, const std::string& op) {
+        return new Error(start, end, "OperatorError",
+                         "'" + op + "'");
+    }
+
+    inline Error* UnknownSymbolError(Position* start, Position*end, const std::string& symbol) {
+        return new Error(start, end, "UnknownSymbol",
+                         "'" + symbol + "'");
+    }
+
+    inline Error* TypeError (Position* start, Position* end, std::string expected, std::string actual, std::string detail) {
+        return new Error(start, end, "TypeError",
+                         "Expected type '" + expected + "' but got type '" + actual + "'");
     }
 }
 

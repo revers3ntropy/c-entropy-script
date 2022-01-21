@@ -1,20 +1,213 @@
 #pragma once
+#include <algorithm>
+#include <numeric>
+#include <vector>
+#include <string>
+#include <math.h>
 
-#define ull unsigned long long int;
 
-// Single class BigNumber, all contained in this header file
+/* Single class BigNumber, all contained in this header file
+ * Uses two integer values to store any real number,
+ * meaning that in this case 0.1+0.2 == 0.3.
+ * Converting back to string requires removing a bunch of detail however,
+ * as it converts the result of actually dividing them together into a float before casting to string
+ */
+
+using ll = long long int;
+using ull = unsigned long long int;
 
 namespace es {
-    class BigNumber {
-        ull numerator;
+    std::vector<std::string>* split(const char *str, char c = ' ') {
+        // https://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
+        auto* result = new std::vector<std::string>();
+        do {
+            const char *begin = str;
+            while(*str != c && *str)
+                str++;
+            result->emplace_back(begin, str);
+        } while (0 != *str++);
+        return result;
+    }
+
+    struct BigNumber {
+        ll numerator;
         ull denominator;
 
-    public:
-        bool invalid;
+        BigNumber () {
+            numerator = 0;
+            denominator = 1;
+        }
 
-        BigNumber (std::string number): invalid(false) {
-            std::vector<std::string>* parts = split(number, '.');
-            if (parts)
+        explicit BigNumber (std::string number) {
+
+            std::vector<std::string>* parts = split(number.c_str(), '.');
+
+            if (parts->size() > 2) {
+                // has multiple decimal points ==> invalid
+                numerator = 0;
+                denominator = 0;
+            } else if (parts->size() == 1) {
+                // is a simple int
+                numerator = std::stoi((*parts)[0]);
+                denominator = 1;
+            } else {
+                // has fractional part
+                number.erase(std::remove(number.begin(), number.end(), '.'), number.end());
+                numerator = std::stoi(number);
+                denominator = pow(10, ((*parts)[1].size()));
+                simplify();
+            }
+        }
+
+        BigNumber(ll nu, ull de) :
+            numerator(nu), denominator(de) {
+            simplify();
+        }
+
+        [[nodiscard]] std::string str () const {
+            if (denominator == 0)
+                return "Infinity";
+            if (denominator == 1)
+                return std::to_string(numerator);
+            if (numerator == 0)
+                return "0";
+
+
+            // from https://www.geeksforgeeks.org/represent-the-fraction-of-two-numbers-in-the-string-format/
+
+            // Output string to store the answer
+            std::string res;
+
+            // only numerator is signed
+            int sign = numerator < 0 ? -1 : 1;
+
+            ull num = numerator;
+            ull den = denominator;
+
+            if (sign == -1)
+                res += "-";
+
+            // Calculate the absolute part (before decimal point)
+            ull initial = num / den;
+
+            // Append the initial part
+            res += std::to_string(initial);
+
+            // If completely divisible, return answer.
+            if (num % den == 0)
+                return res;
+
+            res += ".";
+
+            // Initialize Remainder
+            int rem = num % den;
+            std::map<ll, ll> mp;
+
+            // Position at which fraction starts repeating
+            // if it exists
+            ull index;
+            bool repeating = false;
+            while (rem > 0 && !repeating) {
+
+                // If this remainder is already seen,
+                // then there exists a repeating fraction.
+                if (mp.find(rem) != mp.end()) {
+
+                    // Index to insert parentheses
+                    index = mp[rem];
+                    repeating = true;
+                    break;
+                }
+                else
+                    mp[rem] = res.size();
+
+                rem = rem * 10;
+
+                // Calculate quotient, append
+                // it to result and
+                // calculate next remainder
+                ull temp = rem / den;
+                res += std::to_string(temp);
+                rem = rem % den;
+            }
+
+            // If repeating fraction exists,
+            // insert parentheses.
+            if (repeating) {
+                res += ")";
+                res.insert(index, "(");
+            }
+
+            // Return result.
+            return res;
+        }
+
+        void simplify () {
+            if (denominator == 0)
+                return;
+
+            ull gcd = std::__gcd((ull)std::abs(numerator), denominator);
+            numerator /= gcd;
+            denominator /= gcd;
+        }
+
+        BigNumber operator + (ll n) {
+            if (n == 0) return *this;
+            if (n < 0) {
+                n *= -1;
+                numerator *= -1;
+            }
+            return {(ll)(numerator + n*denominator), denominator};
+        }
+        BigNumber operator - (ll n) {
+            if (n == 0) return *this;
+            if (n < 0) {
+                n *= -1;
+                numerator *= -1;
+            }
+            return {(ll)(numerator - n*denominator), denominator};
+        }
+        BigNumber operator * (ll n) {
+            if (n == 0) return {0, 1};
+            if (n < 0) {
+                n *= -1;
+                numerator *= -1;
+            }
+            return {numerator * n, denominator};
+        }
+        BigNumber operator / (ll n) {
+            if (n == 0) return {0, 0};
+            if (n < 0) {
+                n *= -1;
+                numerator *= -1;
+            }
+            return {numerator, denominator * n};
+        }
+
+
+        BigNumber operator + (BigNumber n) const {
+            return {
+                (ll)(numerator * n.denominator + n.numerator * denominator),
+                denominator * n.denominator
+            };
+        }
+        BigNumber operator - (BigNumber n) const {
+            return {
+                (ll)(numerator * n.denominator - n.numerator * denominator),
+                denominator * n.denominator
+            };
+        }
+        BigNumber operator * (BigNumber n) const {
+            return {
+                numerator * n.numerator,
+                denominator * n.denominator
+            };
+        }
+        BigNumber operator / (BigNumber n) const {
+            return {
+                (ll)(numerator * n.denominator),
+                denominator * n.numerator
+            };
         }
     };
 }

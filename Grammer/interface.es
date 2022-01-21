@@ -2,7 +2,18 @@ false;
 true;
 undefined;
 
-// Inaccessible in ES
+let Primitive = class {};
+let string = class {};
+let number = class {};
+let type = class {};
+let undefined = class {};
+let function = class {};
+let error = class {};
+let bool = class {};
+let object = class {};
+let array = class {};
+
+// Inaccessible
 const Primitive = class {
     str(): string {};
     bool(): bool {};
@@ -52,11 +63,11 @@ const undefined = class extends Primitive {
 
 };
 
-const error = class extends Primitive<any> {
+const error = class extends Primitive {
 
 };
 
-const function = class extends Primitive<any> {
+const function = class extends Primitive {
     name: string;
     arguments_: any[];
     this_: any;
