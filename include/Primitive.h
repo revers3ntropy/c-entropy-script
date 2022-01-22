@@ -29,11 +29,11 @@ namespace es {
             type(type_), properties(new std::map<std::string, Primitive>()) {};
 
         // to override
-        virtual explicit operator bool () {
-            return false;
+        virtual bool toBool () {
+            return true;
         }
 
-        virtual explicit operator std::string () {
+        virtual std::string toString () {
             return "";
         }
 
@@ -94,45 +94,41 @@ namespace es {
             Function* constructor=nullptr
         );
 
-        explicit operator std::string () override {
+        std::string toString () override {
             return "<Type: " + name + ">";
         }
+
+        static std::map<std::string, Type*> types;
     };
 
-    struct types {
-        static Type* type;
-        static Type* undefined;
-        static Type* number;
-        static Type* boolean;
-        static Type* string;
-        static Type* array;
-        static Type* object;
-        static Type* function;
-        static Type* error;
-        static Type* any;
-    };
+    inline Type* type(const std::string& name) {
+        if (Type::types.contains(name)) {
+            return Type::types.at(name);
+        }
+        return nullptr;
+    }
 
     class Number : public Primitive {
         es::BigNumber* value;
     public:
         Number ():
-            Primitive(types::number), value(new BigNumber()) {}
+            Primitive(Type::types["number"]), value(new BigNumber()) {}
         explicit Number (std::string value):
-            Primitive(types::number), value(new BigNumber(std::move(value))) {}
+            Primitive(Type::types["number"]), value(new BigNumber(std::move(value))) {}
         explicit Number (es::BigNumber* value):
-            Primitive(types::number), value(value) {}
+            Primitive(Type::types["number"]), value(value) {}
     };
 
     class String : public Primitive {
         std::string value;
     public:
         explicit String (std::string value)
-        : Primitive(types::string), value(std::move(value)) {}
+        : Primitive(Type::types["string"]), value(std::move(value)) {}
     };
 
     class Function : public Primitive {
     public:
-        Function(): Primitive(types::function) {}
+        Function(): Primitive(Type::types["function"]) {}
 
         std::string name;
         // actually type InterpretedArgument*, not void* TODO: better solution
@@ -143,19 +139,19 @@ namespace es {
 
     class Object : public Primitive {
     public:
-        Object(): Primitive(types::object) {}
+        Object(): Primitive(Type::types["object"]) {}
     };
 
     class Undefined : public Primitive {
     public:
-        Undefined (): Primitive(types::undefined) {}
+        Undefined (): Primitive(Type::types["undefined"]) {}
     };
 
     class Boolean : public Primitive {
     public:
         bool value;
         explicit Boolean (bool value):
-            Primitive(types::boolean), value(value) {}
+            Primitive(Type::types["boolean"]), value(value) {}
     };
 }
 

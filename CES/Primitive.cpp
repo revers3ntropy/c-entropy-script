@@ -2,15 +2,17 @@
 
 #include <utility>
 
-es::Type* es::types::type = new es::Type();
-es::Type* es::types::undefined = new es::Type();
-es::Type* es::types::number = new es::Type();
-es::Type* es::types::string = new es::Type();
-es::Type* es::types::array = new es::Type();
-es::Type* es::types::object = new es::Type();
-es::Type* es::types::function = new es::Type();
-es::Type* es::types::error = new es::Type();
-es::Type* es::types::any = new es::Type();
+std::map<std::string, es::Type*> es::Type::types = {
+    {"type", new es::Type() },
+    {"undefined", new es::Type() },
+    {"number", new es::Type() },
+    {"string", new es::Type() },
+    {"array", new es::Type() },
+    {"object", new es::Type() },
+    {"function", new es::Type() },
+    {"error", new es::Type() },
+    {"any", new es::Type() }
+};
 
 es::Type::Type(
     bool is_primitive,
@@ -25,9 +27,10 @@ es::Type::Type(
     extends(extends),
     constructor(constructor)
 {
-    // set up the current type for the first type ot be defined: type
-    if (es::types::type)
-        type = es::types::type;
-    else
+    // set up the current type for the first type to be defined: type
+    if (es::Type::types.contains("type")) {
+        type = es::type("type");
+    } else {
         type = this;
+    }
 }

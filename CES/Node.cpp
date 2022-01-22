@@ -1,5 +1,4 @@
 #include "../include/Node.h"
-#include "../include/Primitive.h"
 
 es::RunTimeResult *es::Node::interpret(es::Context* context) {
     RunTimeResult* res = interpret_(context);
@@ -21,7 +20,14 @@ es::RunTimeResult *es::N_string::interpret_(es::Context* context) {
 }
 
 es::RunTimeResult* es::N_access_variable::interpret_(es::Context* context) {
-    return new RunTimeResult(context->get(value));
+    auto res = new RunTimeResult();
+    auto [primitive_val, err] = context->get(value);
+    if (err) {
+        res->err = err;
+    } else {
+        res->val = primitive_val;
+    }
+    return res;
 }
 
 es::RunTimeResult *es::N_break::interpret_(es::Context* context) {
@@ -163,13 +169,13 @@ es::RunTimeResult *es::N_unary_op::interpret_(es::Context *context) {
             return res;
 
         case es::tt::ADD:
-            if (res->val->type != es::types::number)
-                res->err = TypeError(start, end, "Number", (std::string)*res->val->type, "");
+            if (res->val->type != es::Type::types["number"])
+                res->err = TypeError(start, end, "Number", res->val->type->toString(), "");
             return res;
 
         case es::tt::SUB: {
-            if (res->val->type != es::types::number)
-                res->err = TypeError(start, end, "Number", (std::string)*res->val->type, "");
+            if (res->val->type != es::Type::types["number"])
+                res->err = TypeError(start, end, "Number", res->val->type->toString(), "");
             auto [result, err] = (new Number())->subtract(res->val);
             res->err = err;
             res->val = result;

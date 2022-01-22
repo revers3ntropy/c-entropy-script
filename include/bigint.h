@@ -1,9 +1,13 @@
 #pragma once
+
 #include <algorithm>
 #include <numeric>
 #include <vector>
 #include <string>
 #include <math.h>
+#include <map>
+
+#include "util.h"
 
 
 /* Single class BigNumber, all contained in this header file
@@ -17,18 +21,6 @@ using ll = long long int;
 using ull = unsigned long long int;
 
 namespace es {
-    std::vector<std::string>* split(const char *str, char c = ' ') {
-        // https://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
-        auto* result = new std::vector<std::string>();
-        do {
-            const char *begin = str;
-            while(*str != c && *str)
-                str++;
-            result->emplace_back(begin, str);
-        } while (0 != *str++);
-        return result;
-    }
-
     struct BigNumber {
         ll numerator;
         ull denominator;
@@ -40,7 +32,7 @@ namespace es {
 
         explicit BigNumber (std::string number) {
 
-            std::vector<std::string>* parts = split(number.c_str(), '.');
+            std::vector<std::string>* parts = util::split(number.c_str(), '.');
 
             if (parts->size() > 2) {
                 // has multiple decimal points ==> invalid

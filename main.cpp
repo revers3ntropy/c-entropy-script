@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include "include/bigint.h"
 #include "include/CES.h"
 
 void console () {

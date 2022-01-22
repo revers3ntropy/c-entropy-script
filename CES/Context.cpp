@@ -10,6 +10,7 @@ es::Error* es::Context::set_own(std::string id, es::Primitive* value) {
             new Symbol(value, id)
         });
     }
+    return nullptr;
 }
 
 es::Context::~Context() {
@@ -19,7 +20,7 @@ es::Context::~Context() {
         if (symbol->is_const)
             out += " (CONST)";
 
-        out += ": " + symbol->value->str();
+        out += ": " + symbol->value->toString();
         std::cout << out << std::endl;
     }
     std::cout << "-----------------" << std::endl;
@@ -41,16 +42,17 @@ std::tuple<es::Primitive*, es::Error*> es::Context::get(const std::string& id) {
     return {symbol->value, nullptr};
 }
 
-es::Symbol* es::Context::getSymbol(const std::string& id) {
+std::tuple<es::Symbol*, es::Error*> es::Context::getSymbol(const std::string& id) {
     if (symbol_table.contains(id)) {
         Symbol* symbol = symbol_table.at(id);
-        return symbol;
+        return {symbol, nullptr};
     }
 
-    if (parent)
+    if (parent) {
         return parent->getSymbol(id);
+    }
 
-    return nullptr;
+    return {nullptr, nullptr};
 }
 
 es::Error* es::Context::set(es::Primitive* val, const std::string& id, es::SymbolOptions* options) {
@@ -74,12 +76,13 @@ es::Error* es::Context::set(es::Primitive* val, const std::string& id, es::Symbo
 
 es::Error* es::Context::setOwn(es::Primitive* val, const std::string& id, es::SymbolOptions* options) {
     if (symbol_table.contains(id)) {
-        if (symbol_table.at(id)->is_const)
-            return new Error(nullptr, nullptr, "TypeError",
-                             "Symbol '" + id + "' is constant.");
+        if (symbol_table.at(id)->is_const){
+            return new Error(nullptr, nullptr, "TypeError","Symbol '" + id + "' is constant.");
+        }
         symbol_table.erase(id);
     }
-    symbol_table.insert({ id, val });
+
+    symbol_table[id] = new Symbol(val, id);
     return nullptr;
 }
 
@@ -102,10 +105,14 @@ void es::Context::clear() {
 void es::Context::reset_as_global() {
     if (!initialised_as_global) return;
 
-    auto print = root()->get("print");
-    auto input = root()->get("input");
+    auto [print, print_err] = root()->get("print");
+    auto [input, input_err] = root()->get("input");
 
     clear();
 
-    initialised_as_global(print, input);
+    initialise_as_global(print, input);
+}
+
+void es::Context::initialise_as_global(es::Primitive* print, es::Primitive* input) {
+
 }

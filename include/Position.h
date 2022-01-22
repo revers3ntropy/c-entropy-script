@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
+#include <utility>
 #include <vector>
+#include <iostream>
+
 
 namespace es {
     struct Position {
@@ -12,10 +15,12 @@ namespace es {
         Position(int idx_, int ln_, int col_, std::string file_) :
             idx(idx_), ln(ln_), col(col_), file(std::move(file_))
         {}
+
         ~Position() {
             delete &idx;
             delete &ln;
             delete &col;
+            delete &file;
         }
 
         inline void advance(char current_char) {
@@ -27,10 +32,11 @@ namespace es {
                 col = 0;
             }
         }
-        [[nodiscard]] inline Position* clone() const {
+        inline Position* clone() const {
             return new Position(idx, ln, col, file);
         }
-        [[nodiscard]] inline std::string str() const {
+        inline std::string str() const {
+            std::cout << file;
             return "File '" + file + "', " + std::to_string(ln+1) + ":" + std::to_string(col+1);
         }
     };

@@ -56,7 +56,7 @@ namespace es {
 
     public:
         explicit Parser(std::vector<es::Token> tokens_)
-         : tokens(tokens_), tok_idx(-1), current(&tokens_[0]) {
+         : tokens(std::move(tokens_)), tok_idx(-1), current(nullptr) {
             advance();
         }
         ParseResult* parse();
@@ -71,7 +71,9 @@ namespace es {
         }
 
         inline bool advance(ParseResult* res=nullptr) {
-            if (tok_idx >= tokens.size()-1) return false;
+            if (tok_idx >= tokens.size()-1) {
+                return false;
+            }
             if (res) res->register_advance();
             tok_idx++;
             current = &tokens[tok_idx];

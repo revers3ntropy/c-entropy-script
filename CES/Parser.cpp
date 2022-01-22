@@ -1,4 +1,5 @@
 #include <tuple>
+#include <iostream>
 
 #include "../include/Parser.h"
 
@@ -10,8 +11,8 @@ es::ParseResult* es::Parser::parse() {
     es::ParseResult* res = statements(true);
 
     if (!res) {
-        return new es::ParseResult {nullptr, UnexpectedEOF()
-        }};
+        return new es::ParseResult {nullptr, UnexpectedEOF()};
+    }
 
     if (!res->err && (!current || current->type != es::tt::END_OF_FILE)) {
         return res->failure(UnexpectedEOF());
@@ -31,6 +32,8 @@ std::tuple<es::UnInterpretedArgument*, es::Error*> es::Parser::parameter(es::Par
 
 es::ParseResult* es::Parser::statements(bool use_array) {
     auto* res = new ParseResult();
+    std::cout << current->str() << std::endl;
+    std::cin.ignore();
     auto* start = current->start->clone();
 
     std::vector<es::Node> statements = {};
@@ -122,6 +125,8 @@ es::ParseResult *es::Parser::atom() {
             advance(res);
             return res->success(new es::N_string(tok->start, tok->end, tok->value));
     }
+
+    return nullptr;
 }
 
 es::ParseResult *es::Parser::atom_identifier(es::ParseResult *res, es::Position *start, es::Token tok) {
