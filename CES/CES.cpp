@@ -15,7 +15,6 @@ es::RunTimeResult* run (const std::string& code, std::string filename, es::Conte
         final_res->err = lexer_res.error;
         return final_res;
     }
-    std::cout << lexer_res.str() << std::endl;
 
     auto* parser = new es::Parser(*lexer_res.tokens);
     auto parse_res = parser->parse();
@@ -23,6 +22,7 @@ es::RunTimeResult* run (const std::string& code, std::string filename, es::Conte
         final_res->err = parse_res->err;
         return final_res;
     }
+
     std::cout << parse_res->str() << std::endl;
 
     auto interpret_res = parse_res->node->interpret(context);

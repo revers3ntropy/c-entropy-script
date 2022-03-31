@@ -3,6 +3,10 @@
 
 #include "../include/Context.h"
 
+es::Context::~Context() {
+    delete &symbol_table;
+}
+
 es::Error* es::Context::set_own(std::string id, es::Primitive* value) {
     if (!symbol_table.contains(id)) {
         symbol_table.insert({
@@ -13,15 +17,15 @@ es::Error* es::Context::set_own(std::string id, es::Primitive* value) {
     return nullptr;
 }
 
-es::Context::~Context() {
+void es::Context::log() {
     std::cout << "---- CONTEXT ----" << std::endl;
     for (auto const& [key, symbol] : symbol_table) {
         std::string out = key;
-        if (symbol->is_const)
+        if (symbol->is_const){
             out += " (CONST)";
+        }
 
         out += ": " + symbol->value->toString();
-        std::cout << out << std::endl;
     }
     std::cout << "-----------------" << std::endl;
 }

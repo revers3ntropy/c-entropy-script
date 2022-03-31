@@ -3,16 +3,17 @@
 es::RunTimeResult *es::Node::interpret(es::Context* context) {
     RunTimeResult* res = interpret_(context);
 
-    if (res->err && res->err->start == nullptr)
+    if (res->err && res->err->start == nullptr) {
         res->err->start = start;
-    if (res->err && res->err->end == nullptr)
+    }
+    if (res->err && res->err->end == nullptr) {
         res->err->end = start;
+    }
 
     return res;
 }
 
 es::RunTimeResult* es::N_number::interpret_(es::Context* context) {
-    std::cout << "number" << std::endl;
     return new es::RunTimeResult(new es::Number(value));
 }
 
@@ -142,15 +143,73 @@ es::RunTimeResult* es::N_bin_op::interpret_(es::Context* context) {
 }
 
 es::RunTimeResult *es::N_statements::interpret_(es::Context* context) {
-    return new RunTimeResult();
+
+    if (!top_level) {
+        Primitive* last;
+        for (auto item : *items) {
+            auto res = item->interpret(context);
+            if (res->err || (res->func_return != nullptr) || res->should_continue || res->should_break) {
+                return res;
+            }
+            // return last statement
+            last = res->val;
+        }
+
+        if (last == nullptr) {
+            last = new Null();
+        }
+
+        return new RunTimeResult(last);
+    } else {
+        auto *res = new RunTimeResult();
+        auto *interpreted = new std::vector<Primitive *>();
+
+        for (auto *item: *items) {
+            auto *item_res = item->interpret(context);
+            if (item_res->err != nullptr || item_res->func_return != nullptr) {
+                return item_res;
+            }
+            if (item_res->val == nullptr) continue;
+            auto [val, err] = item_res->val->clone();
+            if (err != nullptr) {
+                item_res->err = err;
+                return item_res;
+            }
+            interpreted->push_back(val);
+        }
+
+        res->val = new Array(interpreted);
+        return res;
+    }
 }
 
 es::RunTimeResult *es::N_array::interpret_(es::Context* context) {
-    return new RunTimeResult();
+    auto* res = new RunTimeResult();
+    auto* interpreted = new std::vector<Primitive*>();
+
+    for (auto* item : *items) {
+        auto* item_res = item->interpret(context);
+        if (item_res->err != nullptr || item_res->func_return != nullptr) {
+            return item_res;
+        }
+        if (item_res->val == nullptr) continue;
+        if (should_copy) {
+            auto [val, err] = item_res->val->clone();
+            if (err != nullptr) {
+                item_res->err = err;
+                return item_res;
+            }
+        }
+
+        interpreted->push_back(item_res->val);
+    }
+
+    res->val = new Array(interpreted);
+    return res;
 }
 
 es::RunTimeResult* es::N_undefined::interpret_(es::Context* context) {
-    return new RunTimeResult(new es::Undefined());
+    return new RunTimeResult(new es::Null());
 }
 
 es::RunTimeResult *es::N_return::interpret_(es::Context* context) {

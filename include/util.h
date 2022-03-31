@@ -12,10 +12,5 @@ namespace es::util {
         vector->insert(vector->begin() + idx, *item);
     }
 
-    template<typename Base, typename T>
-    inline bool instanceof(const T *ptr) {
-        return dynamic_cast<const Base*>(ptr) != nullptr;
-    }
-
     std::vector<std::string>* split(const char *str, char c = ' ');
 }

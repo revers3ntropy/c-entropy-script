@@ -1,4 +1,5 @@
 #include "../include/Primitive.h"
+#include "../include/RTResult.h"
 
 #include <utility>
 
@@ -33,4 +34,12 @@ es::Type::Type(
     } else {
         type = this;
     }
+}
+
+es::opOverrideRes es::Number::add(es::Primitive* p) {
+    auto* asNum = dynamic_cast<Number*>(p);
+    if (asNum == nullptr) {
+        return {nullptr, TypeError(nullptr, nullptr, "Num", p->type->name)};
+    }
+    return {new Number(*value + asNum->value), nullptr};
 }

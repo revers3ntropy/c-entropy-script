@@ -12,9 +12,8 @@ namespace es {
         int ln;
         int col;
 
-        Position(int idx_, int ln_, int col_, std::string file_) :
-            idx(idx_), ln(ln_), col(col_), file(std::move(file_))
-        {}
+        Position(int idx_, int ln_, int col_, std::string file_)
+            : idx(idx_), ln(ln_), col(col_), file(std::move(file_)) {}
 
         ~Position() {
             delete &idx;
@@ -35,9 +34,13 @@ namespace es {
         inline Position* clone() const {
             return new Position(idx, ln, col, file);
         }
+
         inline std::string str() const {
-            std::cout << file;
             return "File '" + file + "', " + std::to_string(ln+1) + ":" + std::to_string(col+1);
+        }
+
+        static inline Position* nil () {
+            return new Position(-1, -1, -1, "Unknown");
         }
     };
 }

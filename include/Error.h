@@ -12,8 +12,20 @@ namespace es {
         std::string name;
         std::string detail;
 
-        Error(Position* start_, Position* end_, std::string  name_, std::string detail_) :
-            start(start_->clone()), end(end_->clone()), name(std::move(name_)), detail(std::move(detail_)){};
+        Error(Position* start_, Position* end_, std::string  name, std::string detail) :
+            name(std::move(name)), detail(std::move(detail)) {
+
+            if (start_ != nullptr) {
+                start = start_->clone();
+            } else {
+                start = Position::nil();
+            }
+            if (end_ != nullptr) {
+                end = end_->clone();
+            } else {
+                end = Position::nil();
+            }
+        };
 
         inline std::string str() const {
             return name + ": " + detail + " at " + start->str();
@@ -26,8 +38,9 @@ namespace es {
 
         std::string str() {
             std::string out = err.str();
-            for (const auto& pos : calls)
+            for (const auto& pos : calls){
                 out += pos.str();
+            }
             return out;
         }
     };
@@ -43,23 +56,16 @@ namespace es {
     }
 
     inline Error* SyntaxError(Position* start, Position* end, std::string detail) {
-        return new Error(start, end, "SyntaxError",
-                         std::move(detail));
+        return new Error(start, end, "InvalidSyntaxError", detail);
     }
 
     inline Error* OperatorError(Position* start, Position* end, const std::string& op) {
-        return new Error(start, end, "OperatorError",
-                         "'" + op + "'");
+        return new Error(start, end, "OperatorError", "'" + op + "'");
     }
 
-    inline Error* UnknownSymbolError(Position* start, Position*end, const std::string& symbol) {
-        return new Error(start, end, "UnknownSymbol",
-                         "'" + symbol + "'");
-    }
-
-    inline Error* TypeError (Position* start, Position* end, std::string expected, std::string actual, std::string detail) {
+    inline Error* TypeError (Position* start, Position* end, const std::string& expected, const std::string& actual, const std::string& detail = "") {
         return new Error(start, end, "TypeError",
-                         "Expected type '" + expected + "' but got type '" + actual + "'");
+                         "Expected type '" + expected + "' but got type '" + actual + "': " + detail);
     }
 }
 

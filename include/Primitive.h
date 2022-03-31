@@ -16,6 +16,8 @@ namespace es {
     class Object;
     class Boolean;
     class String;
+    class Array;
+    class Null;
 
     using opOverrideRes = std::tuple<Primitive*, Error*>;
 
@@ -32,8 +34,12 @@ namespace es {
             return true;
         }
 
-        virtual std::string toString () {
-            return "";
+        virtual inline opOverrideRes clone () {
+            return {nullptr, OperatorError(nullptr, nullptr, "clone")};
+        }
+
+        virtual inline std::string toString () {
+            return "(no implementation of 'toString')";
         }
 
         virtual opOverrideRes add (Primitive* p) {
@@ -79,12 +85,13 @@ namespace es {
 
     class Type : public Primitive {
         bool is_primitive;
-        std::string name;
         Type* extends;
         std::vector<Function*>* methods;
         Function* constructor;
         std::vector<Object>* instances = {};
     public:
+        std::string name;
+
         explicit Type (
             bool is_primitive=false,
             std::string name = "(anon)",
@@ -110,12 +117,24 @@ namespace es {
     class Number : public Primitive {
         es::BigNumber* value;
     public:
-        Number ():
-            Primitive(Type::types["number"]), value(new BigNumber()) {}
-        explicit Number (std::string value):
-            Primitive(Type::types["number"]), value(new BigNumber(std::move(value))) {}
-        explicit Number (es::BigNumber* value):
-            Primitive(Type::types["number"]), value(value) {}
+        Number() :
+                Primitive(Type::types["number"]), value(new BigNumber()) {}
+
+        explicit Number(std::string value) :
+                Primitive(Type::types["number"]), value(new BigNumber(std::move(value))) {}
+
+        explicit Number(es::BigNumber* value) :
+                Primitive(Type::types["number"]), value(value) {}
+
+        inline opOverrideRes clone() override {
+            return {new Number(value), nullptr};
+        }
+
+        inline std::string toString () override {
+            return value->str();
+        }
+
+        opOverrideRes add(Primitive *p) override;
     };
 
     class String : public Primitive {
@@ -123,6 +142,10 @@ namespace es {
     public:
         explicit String (std::string value)
         : Primitive(Type::types["string"]), value(std::move(value)) {}
+
+        inline std::string toString () override {
+            return value;
+        }
     };
 
     class Function : public Primitive {
@@ -141,16 +164,37 @@ namespace es {
         Object(): Primitive(Type::types["object"]) {}
     };
 
-    class Undefined : public Primitive {
-    public:
-        Undefined (): Primitive(Type::types["undefined"]) {}
-    };
-
     class Boolean : public Primitive {
     public:
         bool value;
         explicit Boolean (bool value):
             Primitive(Type::types["boolean"]), value(value) {}
+
+        inline std::string toString () override {
+            return std::to_string(value);
+        }
+    };
+
+    class Array : public Primitive {
+        std::vector<Primitive*>* value;
+    public:
+        explicit Array (std::vector<Primitive*>* value)
+                : Primitive(Type::types["array"]), value(value) {}
+
+        virtual inline std::string toString () {
+            std::string str = "[";
+            for (auto element : *value) {
+                str += element->toString();
+                str += ", ";
+            }
+            return str + "]";
+        }
+    };
+
+    class Null : public Primitive {
+    public:
+        explicit Null ():
+                Primitive(Type::types["undefined"]) {}
     };
 }
 

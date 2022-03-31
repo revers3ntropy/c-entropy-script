@@ -83,8 +83,9 @@ namespace es {
 
     private:
         inline Error* UnexpectedEOF () {
-            if (current)
+            if (current) {
                 return new Error(current->end, current->end, "UnexpectedEOFError", "File Ended unexpectedly");
+            }
             // current is not defined - really bad error
             Position* pos = tokens[tokens.size()-1].end;
             return new Error(pos, pos, "UnexpectedEOFError", "File Ended unexpectedly, and no EOF was found");

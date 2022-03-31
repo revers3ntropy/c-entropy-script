@@ -40,7 +40,11 @@ namespace es {
                 denominator = 0;
             } else if (parts->size() == 1) {
                 // is a simple int
-                numerator = std::stoi((*parts)[0]);
+                try {
+                    numerator = std::stoll((*parts)[0]);
+                } catch (std::out_of_range &e) {
+                    numerator = std::numeric_limits<ll>::max();
+                }
                 denominator = 1;
             } else {
                 // has fractional part
@@ -57,12 +61,15 @@ namespace es {
         }
 
         [[nodiscard]] std::string str () const {
-            if (denominator == 0)
-                return "Infinity";
-            if (denominator == 1)
+            if (denominator == 0){
+                return "inf";
+            }
+            if (denominator == 1){
                 return std::to_string(numerator);
-            if (numerator == 0)
+            }
+            if (numerator == 0){
                 return "0";
+            }
 
 
             // from https://www.geeksforgeeks.org/represent-the-fraction-of-two-numbers-in-the-string-format/
@@ -76,8 +83,9 @@ namespace es {
             ull num = numerator;
             ull den = denominator;
 
-            if (sign == -1)
+            if (sign == -1){
                 res += "-";
+            }
 
             // Calculate the absolute part (before decimal point)
             ull initial = num / den;
@@ -86,8 +94,9 @@ namespace es {
             res += std::to_string(initial);
 
             // If completely divisible, return answer.
-            if (num % den == 0)
+            if (num % den == 0){
                 return res;
+            }
 
             res += ".";
 
@@ -109,9 +118,9 @@ namespace es {
                     index = mp[rem];
                     repeating = true;
                     break;
-                }
-                else
+                } else {
                     mp[rem] = res.size();
+                }
 
                 rem = rem * 10;
 
@@ -135,71 +144,109 @@ namespace es {
         }
 
         void simplify () {
-            if (denominator == 0)
+            if (denominator == 0) {
                 return;
+            }
 
             ull gcd = std::__gcd((ull)std::abs(numerator), denominator);
             numerator /= gcd;
             denominator /= gcd;
         }
 
-        BigNumber operator + (ll n) {
-            if (n == 0) return *this;
+        BigNumber* operator + (ll n) const {
+            if (n == 0) {
+                return new BigNumber(numerator, denominator);
+            }
+            ll mod = 1;
             if (n < 0) {
                 n *= -1;
-                numerator *= -1;
+                mod *= -1;
             }
-            return {(ll)(numerator + n*denominator), denominator};
+            return new BigNumber(ll(numerator + n*denominator), denominator);
         }
-        BigNumber operator - (ll n) {
-            if (n == 0) return *this;
+        BigNumber* operator - (ll n) const {
+            if (n == 0) {
+                return new BigNumber(numerator, denominator);
+            }
+            ll mod = 1;
             if (n < 0) {
                 n *= -1;
-                numerator *= -1;
+                mod *= -1;
             }
-            return {(ll)(numerator - n*denominator), denominator};
+            return new BigNumber(ll((numerator*mod) - n * denominator), denominator);
         }
-        BigNumber operator * (ll n) {
-            if (n == 0) return {0, 1};
+        BigNumber* operator * (ll n) const {
+            if (n == 0) {
+                return new BigNumber(0, 1);
+            }
+            ll mod = 1;
             if (n < 0) {
                 n *= -1;
-                numerator *= -1;
+                mod *= -1;
             }
-            return {numerator * n, denominator};
+            return new BigNumber(numerator * mod * n, denominator);
         }
-        BigNumber operator / (ll n) {
-            if (n == 0) return {0, 0};
+        BigNumber* operator / (ll n) const {
+            if (n == 0) {
+                return new BigNumber(0, 0);
+            }
+            ll mod = 1;
             if (n < 0) {
                 n *= -1;
-                numerator *= -1;
+                mod *= -1;
             }
-            return {numerator, denominator * n};
+            return new BigNumber(numerator * mod, denominator * n);
         }
 
 
-        BigNumber operator + (BigNumber n) const {
-            return {
+        BigNumber* operator + (BigNumber n) const {
+            return new BigNumber(
                 (ll)(numerator * n.denominator + n.numerator * denominator),
                 denominator * n.denominator
-            };
+            );
         }
-        BigNumber operator - (BigNumber n) const {
-            return {
+        BigNumber* operator - (BigNumber n) const {
+            return new BigNumber(
                 (ll)(numerator * n.denominator - n.numerator * denominator),
                 denominator * n.denominator
-            };
+            );
         }
-        BigNumber operator * (BigNumber n) const {
-            return {
+        BigNumber* operator * (BigNumber n) const {
+            return new BigNumber(
                 numerator * n.numerator,
                 denominator * n.denominator
-            };
+            );
         }
-        BigNumber operator / (BigNumber n) const {
-            return {
+        BigNumber* operator / (BigNumber n) const {
+            return new BigNumber(
                 (ll)(numerator * n.denominator),
                 denominator * n.numerator
-            };
+            );
+        }
+
+        BigNumber* operator + (BigNumber* n) const {
+            return new BigNumber(
+                    (ll)(numerator * n->denominator + n->numerator * denominator),
+                    denominator * n->denominator
+            );
+        }
+        BigNumber* operator - (BigNumber* n) const {
+            return new BigNumber(
+                    (ll)(numerator * n->denominator - n->numerator * denominator),
+                    denominator * n->denominator
+            );
+        }
+        BigNumber* operator * (BigNumber* n) const {
+            return new BigNumber(
+                    numerator * n->numerator,
+                    denominator * n->denominator
+            );
+        }
+        BigNumber* operator / (BigNumber* n) const {
+            return new BigNumber(
+                    (ll)(numerator * n->denominator),
+                    denominator * n->numerator
+            );
         }
     };
 }

@@ -28,13 +28,8 @@ namespace es {
 
     protected:
         Node (Position* start, Position* end, bool is_terminal_=false):
-            start(start->clone()), end(end->clone()), is_terminal(is_terminal_) {
-            std::cout << "Node " + start->str() + " : " + end->str() << std::endl;
+                start(start->clone()), end(end->clone()), is_terminal(is_terminal_) {
         };
-
-        ~Node () {
-            std::cout << "deconstructing node" <<std::endl;
-        }
     };
 
     class TerminalNode : public Node {
@@ -172,9 +167,10 @@ namespace es {
     class N_statements: public Node {
         RunTimeResult* interpret_ (Context* context) override;
         std::vector<Node*>* items;
+        bool top_level;
     public:
-        N_statements (Position* start, Position* end, std::vector<Node*>* items_):
-            Node(start, end), items(items_) {}
+        N_statements (Position* start, Position* end, std::vector<Node*>* items_, bool top_lvl=false):
+            Node(start, end), items(items_), top_level(top_lvl) {}
 
         std::string str () override {
             std::string out = "<Node: statements ";

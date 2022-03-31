@@ -14,7 +14,6 @@ es::ParseResult* es::Parser::parse() {
     advance();
 
     if (!current || current->type == es::tt::END_OF_FILE || tok_idx != 0) {
-        std::cout << "end" << std::endl;
         return res;
     }
 
@@ -40,7 +39,7 @@ std::tuple<es::UnInterpretedArgument*, es::Error*> es::Parser::parameter(es::Par
     return {nullptr, nullptr};
 }
 
-es::ParseResult* es::Parser::statements(bool use_array) {
+es::ParseResult* es::Parser::statements(bool top_lvl) {
     auto* res = new ParseResult();
     auto* start = current->start->clone();
 
@@ -74,10 +73,7 @@ end:
 
     clear_end_statements(res);
 
-    es::Node* node = new N_statements(start, current->end, statements);
-    if (use_array) {
-        node = new N_array(start, current->end, statements, true);
-    }
+    es::Node* node = new N_statements(start, current->end, statements, top_lvl);
 
     // final error check
     if (res->err) {
@@ -234,10 +230,10 @@ es::ParseResult *es::Parser::bin_op(ParseResult::bin_op_funcs func_a, std::vecto
         case ParseResult::ATOM_EXPR:
             a_res = atom(); break;
     }
-    if (!a_res) return res;
+    if (a_res == nullptr) return res;
 
     auto left = res->register_parse_res(a_res);
-    if (res->err) return res;
+    if (res->err != nullptr) return res;
 
     while (std::find(ops.begin(), ops.end(), current->type) != ops.end()) {
         auto op_tok = current;
@@ -256,10 +252,10 @@ es::ParseResult *es::Parser::bin_op(ParseResult::bin_op_funcs func_a, std::vecto
             case ParseResult::ATOM_EXPR:
                 b_res = atom(); break;
         }
-        if (!b_res) return res;
+        if (b_res == nullptr) return res;
 
         auto right = res->register_parse_res(b_res);
-        if (res->err) return res;
+        if (res->err != nullptr) return res;
         left = new N_bin_op(left->start, right->end, left, op_tok, right);
     }
     return res->success(left);

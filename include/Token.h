@@ -20,10 +20,11 @@ namespace es {
             start(start_->clone()), end(end_->clone()), type(type_), value(std::move(value_)) {}
 
         [[nodiscard]] bool matches(tt type, const std::string& value) const;
-        [[nodiscard]] inline std::string str() const {
+        [[nodiscard]] std::string str() const {
             auto out = "<Token: " + str_tt(type);
-            if (!value.empty())
-               out += "|" + value;
+            if (!value.empty()){
+                out += "|" + value;
+            }
             return out + ">";
         }
     };

@@ -5,18 +5,19 @@
 void console () {
     std::string input;
     std::cout << ">>> ";
+
     while (std::getline(std::cin, input)) {
+
         if (input == "exit") {
             break;
         }
+
         auto res = run(input, "CES-REPL");
-        if (res->err) {
+
+        if (res->err != nullptr) {
             std::cout << res->err->str() << std::endl;
-            return;
-        }
-        std::cout << res->val << std::endl;
-        if (res->val) {
-            printf("hi");
+
+        } else if (res->val != nullptr) {
             std::cout << res->val->toString() << std::endl;
         }
 
@@ -26,5 +27,4 @@ void console () {
 
 int main () {
     console();
-    return 0;
 }
