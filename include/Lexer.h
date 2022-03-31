@@ -7,7 +7,7 @@
 
 namespace es {
 
-    struct LexResult {
+    struct  LexResult {
         Error* error;
         std::vector<es::Token>* tokens;
 

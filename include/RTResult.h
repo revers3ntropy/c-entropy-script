@@ -16,5 +16,16 @@ namespace es {
 
         RunTimeResult():
             val(nullptr), err(nullptr), func_return(nullptr), should_break(false), should_continue(false) {};
+
+        [[nodiscard]] std::string str() const{
+            if (err) {
+                return "<RunTimeResult: " + err->str() + ">";
+            }
+            if (val) {
+                return "<RunTimeResult: " + val->toString() + ">";
+            }
+            return "<RunTimeResult: empty>";
+
+        }
     };
 }

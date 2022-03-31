@@ -5,7 +5,6 @@
 #include <string>
 #include <tuple>
 
-#include "Primitive.h"
 #include "Error.h"
 #include "bigint.h"
 

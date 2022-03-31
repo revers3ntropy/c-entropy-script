@@ -6,11 +6,11 @@
 namespace es {
     struct UnInterpretedArgument {
         std::string name;
-        es::Node* type;
+        Node* type;
     };
 
     struct InterpretedArgument {
         std::string name;
-        es::Primitive* type;
+        Primitive* type;
     };
 }

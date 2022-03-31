@@ -12,6 +12,7 @@ es::RunTimeResult *es::Node::interpret(es::Context* context) {
 }
 
 es::RunTimeResult* es::N_number::interpret_(es::Context* context) {
+    std::cout << "number" << std::endl;
     return new es::RunTimeResult(new es::Number(value));
 }
 

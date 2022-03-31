@@ -3,5 +3,6 @@
 
 #include "RTResult.h"
 #include "Error.h"
+#include "Context.h"
 
-std::tuple<es::RunTimeResult*, es::Error*> run(const std::string& es_code, std::string filename);
+es::RunTimeResult* run(const std::string& es_code, std::string filename, es::Context* context = new es::Context());

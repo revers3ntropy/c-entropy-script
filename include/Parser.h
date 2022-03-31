@@ -1,5 +1,6 @@
 #pragma once
 #include <utility>
+#include <functional>
 
 #include "Token.h"
 #include "Node.h"
@@ -9,6 +10,16 @@
 
 namespace es {
     struct ParseResult {
+
+        // used in ParseResult::bin_op
+        enum bin_op_funcs {
+            COMPARISON_EXPR,
+            ARITH_EXPR,
+            TERM_EXPR,
+            FACTOR_EXPR,
+            ATOM_EXPR,
+        };
+
         Node* node;
         Error* err;
 
@@ -16,7 +27,7 @@ namespace es {
         int last_registered_advance_count;
         int advance_count;
 
-        void register_advance () {
+        inline void register_advance () {
             advance_count = 1;
             last_registered_advance_count++;
         }
@@ -25,8 +36,9 @@ namespace es {
             last_registered_advance_count = res->advance_count;
             advance_count += res->advance_count;
 
-            if (res->err)
+            if (res->err) {
                 err = res->err;
+            }
             return res->node;
         }
 
@@ -38,14 +50,24 @@ namespace es {
             return register_parse_res(res);
         }
 
-        ParseResult* success (Node* node_) {
+        inline ParseResult* success (Node* node_) {
             node = node_;
             return this;
         }
 
-        ParseResult* failure (Error* err_) {
+        inline ParseResult* failure (Error* err_) {
             err = err_;
             return this;
+        }
+
+        [[nodiscard]] inline std::string str() const {
+            if (err) {
+                return "<ParseResult: " + err->str() + ">";
+            }
+            if (node) {
+                return "<ParseResult: " + node->str() + ">";
+            }
+            return "<ParseResult: empty>";
         }
     };
 
@@ -56,9 +78,7 @@ namespace es {
 
     public:
         explicit Parser(std::vector<es::Token> tokens_)
-         : tokens(std::move(tokens_)), tok_idx(-1), current(nullptr) {
-            advance();
-        }
+         : tokens(std::move(tokens_)), tok_idx(-1), current(nullptr) {}
         ParseResult* parse();
 
     private:
@@ -71,10 +91,12 @@ namespace es {
         }
 
         inline bool advance(ParseResult* res=nullptr) {
-            if (tok_idx >= tokens.size()-1) {
+            if (tok_idx >= ((int)tokens.size())-1) {
                 return false;
             }
-            if (res) res->register_advance();
+            if (res) {
+                res->register_advance();
+            }
             tok_idx++;
             current = &tokens[tok_idx];
             return true;
@@ -122,7 +144,10 @@ namespace es {
         ParseResult* arithmetic_expr();
         ParseResult* comparison_expr();
         ParseResult* expr();
-        ParseResult* bin_op();
+        ParseResult* bin_op(ParseResult::bin_op_funcs func_a, std::vector<tt> ops, ParseResult::bin_op_funcs func_b);
+        inline ParseResult* bin_op(ParseResult::bin_op_funcs func_a, std::vector<tt> ops) {
+            return bin_op(func_a, std::move(ops), func_a);
+        }
         ParseResult* type_expr();
         ParseResult* func_call();
         ParseResult* index();

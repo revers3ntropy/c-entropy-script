@@ -9,10 +9,15 @@ void console () {
         if (input == "exit") {
             break;
         }
-        auto [res, error] = run(input, "CES-REPL");
-        if (error) {
-            std::cout << error->str() << std::endl;
+        auto res = run(input, "CES-REPL");
+        if (res->err) {
+            std::cout << res->err->str() << std::endl;
             return;
+        }
+        std::cout << res->val << std::endl;
+        if (res->val) {
+            printf("hi");
+            std::cout << res->val->toString() << std::endl;
         }
 
         std::cout << ">>> ";
