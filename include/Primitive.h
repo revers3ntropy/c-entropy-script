@@ -38,8 +38,8 @@ namespace es {
             return {nullptr, OperatorError(nullptr, nullptr, "clone")};
         }
 
-        virtual inline std::string toString () {
-            return "(no implementation of 'toString')";
+        virtual inline std::string str () {
+            return "(no implementation of 'str')";
         }
 
         virtual opOverrideRes add (Primitive* p) {
@@ -100,7 +100,7 @@ namespace es {
             Function* constructor=nullptr
         );
 
-        std::string toString () override {
+        std::string str () override {
             return "<Type: " + name + ">";
         }
 
@@ -130,7 +130,7 @@ namespace es {
             return {new Number(value), nullptr};
         }
 
-        inline std::string toString () override {
+        inline std::string str () override {
             return value->str();
         }
 
@@ -143,7 +143,7 @@ namespace es {
         explicit String (std::string value)
         : Primitive(Type::types["string"]), value(std::move(value)) {}
 
-        inline std::string toString () override {
+        inline std::string str () override {
             return value;
         }
     };
@@ -170,7 +170,7 @@ namespace es {
         explicit Boolean (bool value):
             Primitive(Type::types["boolean"]), value(value) {}
 
-        inline std::string toString () override {
+        inline std::string str () override {
             return std::to_string(value);
         }
     };
@@ -181,10 +181,10 @@ namespace es {
         explicit Array (std::vector<Primitive*>* value)
                 : Primitive(Type::types["array"]), value(value) {}
 
-        virtual inline std::string toString () {
+        virtual inline std::string str () {
             std::string str = "[";
             for (auto element : *value) {
-                str += element->toString();
+                str += element->str();
                 str += ", ";
             }
             return str + "]";

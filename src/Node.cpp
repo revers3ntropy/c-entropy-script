@@ -230,12 +230,12 @@ es::RunTimeResult *es::N_unary_op::interpret_(es::Context *context) {
 
         case es::tt::ADD:
             if (res->val->type != es::Type::types["number"])
-                res->err = TypeError(start, end, "Number", res->val->type->toString(), "");
+                res->err = TypeError(start, end, "Number", res->val->type->str(), "");
             return res;
 
         case es::tt::SUB: {
             if (res->val->type != es::Type::types["number"])
-                res->err = TypeError(start, end, "Number", res->val->type->toString(), "");
+                res->err = TypeError(start, end, "Number", res->val->type->str(), "");
             auto [result, err] = (new Number())->subtract(res->val);
             res->err = err;
             res->val = result;

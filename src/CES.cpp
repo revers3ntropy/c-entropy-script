@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include <utility>
 
 #include "../include/Lexer.h"
@@ -23,14 +22,11 @@ es::RunTimeResult* run (const std::string& code, std::string filename, es::Conte
         return final_res;
     }
 
-    std::cout << parse_res->str() << std::endl;
-
     auto interpret_res = parse_res->node->interpret(context);
     if (interpret_res->err) {
         final_res->err = interpret_res->err;
         return final_res;
     }
-    std::cout << interpret_res->str() << std::endl;
 
     final_res->val = interpret_res->val;
 

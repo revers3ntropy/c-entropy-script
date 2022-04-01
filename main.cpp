@@ -12,13 +12,13 @@ void console () {
             break;
         }
 
-        auto res = run(input, "CES-REPL");
+        auto res = run(input, "src-REPL");
 
         if (res->err != nullptr) {
             std::cout << res->err->str() << std::endl;
 
         } else if (res->val != nullptr) {
-            std::cout << res->val->toString() << std::endl;
+            std::cout << res->val->str() << std::endl;
         }
 
         std::cout << ">>> ";

@@ -22,7 +22,7 @@ namespace es {
                 return "<RunTimeResult: " + err->str() + ">";
             }
             if (val) {
-                return "<RunTimeResult: " + val->toString() + ">";
+                return "<RunTimeResult: " + val->str() + ">";
             }
             return "<RunTimeResult: empty>";
 

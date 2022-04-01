@@ -25,7 +25,7 @@ void es::Context::log() {
             out += " (CONST)";
         }
 
-        out += ": " + symbol->value->toString();
+        out += ": " + symbol->value->str();
     }
     std::cout << "-----------------" << std::endl;
 }
