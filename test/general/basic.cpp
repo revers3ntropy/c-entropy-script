@@ -1,5 +1,5 @@
 #include "../framework.h"
 
-expect("[]", "")
-expect("[1, ]", "1")
-expect("IllegalCharError", "~")
+expect("[]", "");
+expect("[1, ]", "1");
+expect("IllegalCharError", "£");

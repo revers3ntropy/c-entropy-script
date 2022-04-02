@@ -8,6 +8,11 @@
 es::RunTimeResult* run (const std::string& code, std::string filename, es::Context* context = new es::Context()) {
     auto final_res = new es::RunTimeResult();
 
+    if (code.empty()) {
+        final_res->val = new es::Array();
+        return final_res;
+    }
+
     auto* lexer = new es::Lexer(code, std::move(filename));
     es::LexResult lexer_res = lexer->lex();
     if (lexer_res.error) {

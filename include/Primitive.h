@@ -181,6 +181,10 @@ namespace es {
         explicit Array (std::vector<Primitive*>* value)
                 : Primitive(Type::types["array"]), value(value) {}
 
+        explicit Array ()
+                : Primitive(Type::types["array"]), value(new std::vector<Primitive*>) {}
+
+
         virtual inline std::string str () {
             std::string str = "[";
             for (auto element : *value) {
