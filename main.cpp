@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "include/CES.h"
+#include "version.h"
 
 void console () {
     std::string input;
@@ -12,7 +13,7 @@ void console () {
             break;
         }
 
-        auto res = run(input, "src-REPL");
+        auto res = run(input, "CES-REPL");
 
         if (res->err != nullptr) {
             std::cout << res->err->str() << std::endl;
@@ -25,6 +26,13 @@ void console () {
     }
 }
 
+void welcome_message () {
+    std::cout << "Welcome to C++ EntropyScript v" ES_V << " (" << __TIMESTAMP__ << ")" << std::endl;
+    std::cout << "(C++ " << CPP_V << ", GCC " << GCC_V << ", Clang " << CLANG_V << ")" << std::endl;
+    std::cout << "Type 'exit' to exit" << std::endl;
+}
+
 int main () {
+    welcome_message();
     console();
 }
