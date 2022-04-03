@@ -19,7 +19,14 @@ void console () {
             std::cout << res->err->str() << std::endl;
 
         } else if (res->val != nullptr) {
-            std::cout << res->val->str() << std::endl;
+            auto asArr = dynamic_cast<es::Array*>(res->val);
+            if (asArr == nullptr) {
+                std::cerr << "invalid result" << std::endl;
+                continue;
+            }
+            for (auto item : *asArr->value) {
+                std::cout << item->str() << std::endl;
+            }
         }
 
         std::cout << ">>> ";

@@ -43,3 +43,27 @@ es::opOverrideRes es::Number::add(es::Primitive* p) {
     }
     return {new Number(*value + asNum->value), nullptr};
 }
+
+es::opOverrideRes es::Number::subtract(es::Primitive* p) {
+    auto* asNum = dynamic_cast<Number*>(p);
+    if (asNum == nullptr) {
+        return {nullptr, TypeError(nullptr, nullptr, "Num", p->type->name)};
+    }
+    return {new Number(*value - asNum->value), nullptr};
+}
+
+es::opOverrideRes es::Number::multiply(es::Primitive* p) {
+    auto* asNum = dynamic_cast<Number*>(p);
+    if (asNum == nullptr) {
+        return {nullptr, TypeError(nullptr, nullptr, "Num", p->type->name)};
+    }
+    return {new Number(*value * asNum->value), nullptr};
+}
+
+es::opOverrideRes es::Number::divide(es::Primitive* p) {
+    auto* asNum = dynamic_cast<Number*>(p);
+    if (asNum == nullptr) {
+        return {nullptr, TypeError(nullptr, nullptr, "Num", p->type->name)};
+    }
+    return {new Number(*value / asNum->value), nullptr};
+}

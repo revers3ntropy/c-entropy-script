@@ -40,6 +40,7 @@ namespace es {
                 denominator = 0;
             } else if (parts->size() == 1) {
                 // is a simple int
+
                 try {
                     numerator = std::stoll((*parts)[0]);
                 } catch (std::out_of_range &e) {
@@ -48,6 +49,7 @@ namespace es {
                 denominator = 1;
             } else {
                 // has fractional part
+
                 number.erase(std::remove(number.begin(), number.end(), '.'), number.end());
                 numerator = std::stoi(number);
                 denominator = pow(10, ((*parts)[1].size()));
@@ -55,8 +57,7 @@ namespace es {
             }
         }
 
-        BigNumber(ll nu, ull de) :
-            numerator(nu), denominator(de) {
+        BigNumber(ll nu, ull de): numerator(nu), denominator(de) {
             simplify();
         }
 
@@ -64,26 +65,23 @@ namespace es {
             if (denominator == 0){
                 return "inf";
             }
-            if (denominator == 1){
+            if (denominator == 1) {
                 return std::to_string(numerator);
             }
             if (numerator == 0){
                 return "0";
             }
 
-
             // from https://www.geeksforgeeks.org/represent-the-fraction-of-two-numbers-in-the-string-format/
 
             // Output string to store the answer
             std::string res;
 
-            // only numerator is signed
-            int sign = numerator < 0 ? -1 : 1;
-
             ull num = numerator;
             ull den = denominator;
 
-            if (sign == -1){
+            if (numerator < 0) {
+                num *= -1;
                 res += "-";
             }
 

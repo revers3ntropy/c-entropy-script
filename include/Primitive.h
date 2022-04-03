@@ -135,6 +135,9 @@ namespace es {
         }
 
         opOverrideRes add(Primitive *p) override;
+        opOverrideRes subtract(Primitive *p) override;
+        opOverrideRes divide(Primitive *p) override;
+        opOverrideRes multiply(Primitive *p) override;
     };
 
     class String : public Primitive {
@@ -176,7 +179,6 @@ namespace es {
     };
 
     class Array : public Primitive {
-        std::vector<Primitive*>* value;
     public:
         explicit Array (std::vector<Primitive*>* value)
                 : Primitive(Type::types["array"]), value(value) {}
@@ -193,6 +195,8 @@ namespace es {
             }
             return str + "]";
         }
+
+        std::vector<Primitive*>* value;
     };
 
     class Null : public Primitive {
